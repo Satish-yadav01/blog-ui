@@ -5,6 +5,7 @@ import Loader from "components/Loader/Loader";
 import PostPreview from "components/PostPreview/PostPreview";
 import { useAxiosGet } from "hooks/useAxiosGet";
 import "./Home.scss";
+import axios from "axios";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -12,9 +13,26 @@ export default function Home() {
 
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
-  const { data: posts, error } = useAxiosGet(`/posts/category${window.location.search}`);
-  // console.log(window.location.search);
-  // console.log(posts);
+  // // const [postdata, setPostData] = useState(null);
+  // let data;
+  // let error;
+  // let posts;
+
+  function handleAllTabLink(e) {
+    e.preventDefault();
+    ({ data: posts, error } = useAxiosGet(`/posts/${window.location.pathname}`));
+  }
+
+
+  function handleSpecficTabLink(e) {
+    e.preventDefault();
+
+  }
+
+  const { data: posts, error } = useAxiosGet(`/posts/category${window.location.pathname}`);
+  // console.log("location : " + window.location.pathname);
+  // console.log("post : " + posts);
+
 
   let content;
   if (error) {
@@ -54,15 +72,18 @@ export default function Home() {
     navigate(url.pathname + url.search);
   }
 
+
+
   return (
     <div className="page" id="home-page">
       <div className="categories">
-        <Link to="/" className={`pill ${category === null ? "active" : ""}`}>
+        <Link to="/" className={`pill ${category === null ? "active" : ""}`} >
           ALL
         </Link>
 
+
         {categories.map((cat, i) => (
-          <Link to={`/?category=${cat}`} className={`pill ${category === cat ? "active" : ""}`} key={i}>
+          <Link to={`/${i + 1}`} className={`pill ${category === cat ? "active" : ""}`} key={i}>
             {cat.toUpperCase()}
           </Link>
         ))}
