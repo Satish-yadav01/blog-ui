@@ -12,7 +12,8 @@ export default function Home() {
   const [search, setSearch] = useState("");
 
   const [searchParams] = useSearchParams();
-  const category = searchParams.get("category");
+  // const category = searchParams.get("category");
+  const category = window.location.pathname;
   // // const [postdata, setPostData] = useState(null);
   // let data;
   // let error;
@@ -29,9 +30,10 @@ export default function Home() {
 
   }
 
-  const { data: posts, error } = useAxiosGet(`/posts/category${window.location.pathname}`);
+  const { data: posts, error } = useAxiosGet(category === '/' ? `/posts` : `/posts/category${window.location.pathname}`);
   // console.log("location : " + window.location.pathname);
-  // console.log("post : " + posts);
+  console.log("post : " + posts);
+  console.log("category : " + category);
 
 
   let content;
@@ -53,8 +55,8 @@ export default function Home() {
         </form>
 
         <div className="posts">
-          {posts.length === 0 && <div style={{ textAlign: "center" }}>no posts found</div>}
-          {posts.map((post) => {
+          {posts.content.length === 0 && <div style={{ textAlign: "center" }}>no posts found</div>}
+          {posts.content.map((post) => {
             return <PostPreview post={post} key={post.id} />;
           })}
         </div>
@@ -77,13 +79,13 @@ export default function Home() {
   return (
     <div className="page" id="home-page">
       <div className="categories">
-        <Link to="/" className={`pill ${category === null ? "active" : ""}`} >
+        <Link to="/" className={`pill ${category === '/' ? "active" : ""}`} >
           ALL
         </Link>
 
 
         {categories.map((cat, i) => (
-          <Link to={`/${i + 1}`} className={`pill ${category === cat ? "active" : ""}`} key={i}>
+          <Link to={`/${i + 1}`} className={`pill ${category === `/${i + 1}` ? "active" : ""}`} key={i}>
             {cat.toUpperCase()}
           </Link>
         ))}
