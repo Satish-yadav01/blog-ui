@@ -1,0 +1,52 @@
+.comment {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  position: relative;
+
+  &__delete-btn {
+    all: unset;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    right: 5px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    a {
+      text-decoration: none;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    small {
+      color: #9f9f9f;
+    }
+  }
+
+  &__footer {
+    text-align: right;
+
+    &__translation-toggle {
+      color: var(--primary-color);
+      user-select: none;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
