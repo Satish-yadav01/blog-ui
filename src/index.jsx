@@ -7,7 +7,7 @@ import { AuthProvider } from "contexts/auth";
 import "./index.scss";
 
 axios.defaults.baseURL = 'http://localhost:8080/api/v1';
-//import.meta.env.VITE_SERVER_URL;
+// import.meta.env.VITE_SERVER_URL;
 // axios.interceptors.request.use(
 //   (config) => {
 //     const token = localStorage.getItem("token");

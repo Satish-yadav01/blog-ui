@@ -1,11 +1,12 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Trash2 } from "react-feather";
 import ReactQuill from "react-quill";
 import { useNavigate } from "react-router-dom";
 import "react-quill/dist/quill.snow.css";
 import categories from "../../categories";
 import "./PostForm.scss";
+import { authContext } from "contexts/auth";
 
 const modules = {
   toolbar: [
@@ -20,15 +21,18 @@ const modules = {
   ],
 };
 
+
+
 // to be used to create & edit posts
 export default function PostForm({ defaults, changes }) {
   const [title, setTitle] = useState(defaults ? defaults.title : "");
   const [cover, setCover] = useState(null);
   const [body, setBody] = useState(defaults?.body || "");
-  const [category, setCategory] = useState(defaults?.category || "");
+  const [category, setCategory] = useState(defaults?.category || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { currentUser, logout } = useContext(authContext);
 
   async function handleDraftSubmit() {
     try {
@@ -41,10 +45,10 @@ export default function PostForm({ defaults, changes }) {
 
       const post = new FormData();
       post.set("title", title);
-      post.set("body", body);
-      post.set("category", category);
+      post.set("description", body);
+      post.set("categoryId", category);
       if (cover) {
-        post.set("cover", cover);
+        post.set("coverUrl", cover);
       }
 
       if (defaults) {
@@ -82,19 +86,28 @@ export default function PostForm({ defaults, changes }) {
 
       const post = new FormData();
       post.set("title", title);
-      post.set("body", body);
-      post.set("category", category);
+      post.set("description", body);
+      post.set("categoryId", category);
       if (cover) {
-        post.set("cover", cover);
+        post.set("coverUrl", cover);
       }
 
       if (defaults) {
         await axios.put(`/posts/${defaults.id}`, post);
         navigate(`/posts/${defaults.id}`);
       } else {
-        const res = await axios.post("/posts", post);
-        const postId = res.data.data;
-        navigate(`/posts/${postId}`);
+        const res = await axios.post("/posts", post,
+          {
+            headers: {
+              Authorization: `Bearer ${currentUser.accessToken}`
+              // ,'content-type': 'application/x-www-form-urlencoded'
+            }
+          });
+
+        console.log("response title : " + res.data.title);
+        const postId = res.data;
+        // navigate(`/posts/${postId}`);
+        navigate(`/`);
       }
     } catch (err) {
       console.error(err);
@@ -163,8 +176,8 @@ export default function PostForm({ defaults, changes }) {
                 type="radio"
                 name="category"
                 required
-                onChange={(e) => setCategory(cat)}
-                checked={cat === category}
+                onChange={(e) => setCategory(i + 1)}
+                checked={i + 1 === category}
               />
               &nbsp;
               <label>{cat}</label>

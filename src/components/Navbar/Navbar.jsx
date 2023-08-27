@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { BookOpen } from "react-feather";
 import { Link, NavLink } from "react-router-dom";
 import { authContext } from "contexts/auth";
-import logo from '../../public/avatar2.png'
+import logo from '../../public/avatar2.png';
 import "./Navbar.scss";
 import axios from "axios";
 
@@ -10,7 +10,7 @@ export default function Navbar() {
   const { currentUser, logout } = useContext(authContext);
   const [showUserCard, setShowUserCard] = useState(false);
   const [profileImage, setProfileImage] = useState(logo)
-
+  console.log("currentUser : " + currentUser)
   function closeUserCard(e) {
     // console.log(e.target);
     const $userCard = document.querySelector(".user");
@@ -28,17 +28,20 @@ export default function Navbar() {
 
   useEffect(() => {
     // Fetch the image data from the Spring Boot backend
-    axios.get(`/images/${currentUser.profileImagePath}`, { responseType: 'arraybuffer' })
-      .then(response => {
-        // Convert the image data to a base64-encoded string
-        const base64Image = btoa(
-          new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
-        setProfileImage(`data:image/jpeg;base64,${base64Image}`);
-      })
-      .catch(error => {
-        console.error('Error fetching image:', error);
-      });
+    if (currentUser != null) {
+      axios.get(`/images/${currentUser.profileImagePath}`, { responseType: 'arraybuffer' })
+        .then(response => {
+          // Convert the image data to a base64-encoded string
+          const base64Image = btoa(
+            new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          setProfileImage(`data:image/jpeg;base64,${base64Image}`);
+        })
+        .catch(error => {
+          console.error('Error fetching image:', error);
+        });
+    }
+
   }, []);
 
   function handleAvatarClick(e) {
