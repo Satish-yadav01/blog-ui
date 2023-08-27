@@ -1,7 +1,7 @@
 import axios from "axios";
 import DOMPurify from "dompurify";
 import moment from "moment";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Edit, Heart, Trash2 } from "react-feather";
 import Comment from "components/Comment/Comment";
@@ -16,6 +16,41 @@ export default function Post() {
   const { data: post, error } = useAxiosGet(`/posts/${id}`);
   const { currentUser } = useContext(authContext);
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState(null);
+  const [coverUrl, setCoverUrl] = useState(null);
+  console.log("post ----: " + JSON.stringify(post))
+  // console.log("post user : " + post.user)
+
+  useEffect(() => {
+    if (post != null) {
+      axios.get(`/images/post/${post.coverUrl}`, { responseType: 'arraybuffer' })
+        .then(response => {
+          // Convert the image data to a base64-encoded string
+          console.log("inside axios get of post.coverUrl")
+          const base64Image = btoa(
+            new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          setCoverUrl(`data:image/jpeg;base64,${base64Image}`);
+        })
+        .catch(error => {
+          console.error('Error fetching image:', error);
+        });
+    }
+    if (currentUser != null) {
+      axios.get(`/images/user/${currentUser.profileImagePath}`, { responseType: 'arraybuffer' })
+        .then(response => {
+          // Convert the image data to a base64-encoded string
+          const base64Image = btoa(
+            new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          setProfileImage(`data:image/jpeg;base64,${base64Image}`);
+        })
+        .catch(error => {
+          console.error('Error fetching image:', error);
+        });
+    }
+
+  }, [])
 
   async function handleDelete() {
     if (!confirm("This post will be permanently deleted. Are you sure?")) {
@@ -49,20 +84,20 @@ export default function Post() {
           )}
 
           <div className="post__category">
-            {post.category ? post.category : "---"}
+            {post.categoryId ? post.categoryId : "---"}
             {post.status === "draft" && " (draft)"}
           </div>
 
           <h1>{post.title}</h1>
-          <div className="post__cover">{post.coverUrl ? <img src={post.coverUrl} alt="Cover Image" /> : "---"}</div>
+          <div className="post__cover">{post.coverUrl ? <img src={coverUrl} alt="Cover Image" /> : "---"}</div>
 
           <div className="post__author">
-            <Link to={`/users/${post.user.id}`}>
-              <img src={post.user.avatarUrl} alt="Avatar" className="avatar" />
+            <Link to={`/users/${post.id}`}>
+              <img src={profileImage} alt="Avatar" className="avatar" />
             </Link>
             <div>
               <span>
-                Written by <Link to={`/users/${post.user.id}`}>{post.user.name}</Link>
+                Written by <Link to={`/users/${post.id}`}>{post.title}</Link>
               </span>
               <br />
               <small>
@@ -71,7 +106,7 @@ export default function Post() {
               </small>
             </div>
 
-            {currentUser?.id === post.user.id && (
+            {currentUser?.id === post.id && (
               <div className="post__actions">
                 <Link to={`/edit/${post.id}`} title="Edit Post">
                   <Edit color="var(--primary-color)" />
@@ -87,7 +122,7 @@ export default function Post() {
           <div
             className="post__body"
             dangerouslySetInnerHTML={{
-              __html: post.body ? DOMPurify.sanitize(post.body) : "---",
+              __html: post.description ? DOMPurify.sanitize(post.description) : "---",
             }}
           ></div>
 
@@ -237,7 +272,7 @@ function PostComments({ postId }) {
         user: {
           id: currentUser.id,
           name: currentUser.name,
-          avatarUrl: currentUser.avatarUrl,
+          avatarUrl: currentUser.profileImagePath,
         },
       };
 
