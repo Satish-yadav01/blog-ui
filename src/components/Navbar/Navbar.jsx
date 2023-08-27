@@ -29,7 +29,7 @@ export default function Navbar() {
   useEffect(() => {
     // Fetch the image data from the Spring Boot backend
     if (currentUser != null) {
-      axios.get(`/images/${currentUser.profileImagePath}`, { responseType: 'arraybuffer' })
+      axios.get(`/images/user/${currentUser.profileImagePath}`, { responseType: 'arraybuffer' })
         .then(response => {
           // Convert the image data to a base64-encoded string
           const base64Image = btoa(
