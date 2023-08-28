@@ -4,10 +4,39 @@ import PostPreview from "components/PostPreview/PostPreview";
 import Tabs from "components/Tabs/Tabs";
 import { useAxiosGet } from "hooks/useAxiosGet";
 import "./Profile.scss";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Profile() {
+  // const { id } = useParams();
+  // const { data: user, error } = useAxiosGet(`/user/${id}`);
+  // const [profileImage, setprofileImage] = useState(null);
+  // const [error, setError] = useState("");
+  // const [user, setUser] = useState(null);
   const { id } = useParams();
-  const { data: user, error } = useAxiosGet(`/users/${id}`);
+  const { data: user, error } = useAxiosGet(`/user/${id}`);
+  // console.log("user--------:" + JSON.stringify(user));
+  const [profileImage, setprofileImage] = useState(null);
+
+  useEffect(() => {
+
+    // console.log("user : " + user);
+    // console.log("user.profileImagePath " + user.profileImagePath)
+    if (user && user.profileImagePath != null) {
+      axios.get(`/images/user/${user.profileImagePath}`, { responseType: 'arraybuffer' })
+        .then(response => {
+          // Convert the image data to a base64-encoded string
+          const base64Image = btoa(
+            new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          setprofileImage(`data:image/jpeg;base64,${base64Image}`);
+        })
+        .catch(error => {
+          console.error('Error fetching image:', error);
+          setError(error);
+        });
+    }
+  }, [user])
 
   let content;
   if (error) {
@@ -71,7 +100,7 @@ export default function Profile() {
     content = (
       <div className="user">
         <div className="user__info">
-          <img src={user.avatarUrl} alt="Avatar" className="avatar user__avatar" />
+          <img src={profileImage} alt="Avatar" className="avatar user__avatar" />
           <h2 className="user__name">{user.name}</h2>
           <span>{user.posts.length} posts</span>
         </div>

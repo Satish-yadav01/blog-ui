@@ -50,6 +50,7 @@ export default function PostForm({ defaults, changes }) {
       if (cover) {
         post.set("coverUrl", cover);
       }
+      post.set("loggedInUserId", currentUser.id)
 
       if (defaults) {
         await axios.put(`/posts/changes/${defaults.id}`, post);
@@ -91,6 +92,7 @@ export default function PostForm({ defaults, changes }) {
       if (cover) {
         post.set("coverUrl", cover);
       }
+      post.set("loggedInUserId", currentUser.id)
 
       if (defaults) {
         await axios.put(`/posts/${defaults.id}`, post);
